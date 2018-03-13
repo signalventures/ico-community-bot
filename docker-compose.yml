@@ -1,0 +1,28 @@
+version: '2.2'
+
+networks:
+  ico-community-bot:
+    driver: bridge
+
+services:
+
+  ico-community-bot:
+    image: ico-community-bot
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    depends_on:
+      - redis
+    networks:
+      - ico-community-bot
+    environment:
+      - REDIS_HOST=redis
+      - BOT_USERNAME
+      - BOT_TOKEN
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    networks:
+      - ico-community-bot

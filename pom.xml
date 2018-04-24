@@ -6,7 +6,7 @@
 
   <groupId>vc.signal</groupId>
   <artifactId>ico-community-bot</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <parent>

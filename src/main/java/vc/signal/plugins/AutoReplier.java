@@ -27,12 +27,16 @@ public class AutoReplier implements BotPlugin {
 
   @Override
   public void onTextMessage(Message message) throws TelegramApiException {
-    String messageText = message.getText();
-    if (messageText.toLowerCase().contains("when moon")) {
-      // TODO: Store pairs of keyword=reply and allow admin to set them...
+    // TODO: Store pairs of keyword=reply and allow admin to set them...
+    String messageText = message.getText().toLowerCase();
+    if (messageText.contains("when moon")) {
       bot.execute(new SendMessage(message.getChatId(),
           EmojiParser.parseToUnicode(t(":new_moon::waxing_crescent_moon::first_quarter_moon::waxing_gibbous_moon::full_moon::rocket:")))
         .setReplyToMessageId(message.getMessageId()));
+    } else if (messageText.contains("when") && messageText.contains("whitelist")) {
+      bot.execute(new SendMessage(message.getChatId(),
+          EmojiParser.parseToUnicode(t("Whitelist details will be announced soon. Please stay tuned! :rocket:")))
+          .setReplyToMessageId(message.getMessageId()));
     }
   }
 }

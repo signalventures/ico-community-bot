@@ -2,7 +2,7 @@
 
 ## About
 
-A bot that is specifically tailored to help people administrate an ICO community channel, preventing scam attempts and flooding, amongst other functionalities. 
+A bot that is specifically tailored to help people administrate an ICO community channel, preventing fraud attempts, flooding, answering frequently asked questions, amongst other functionalities. 
 
 ### Installation
 
@@ -37,6 +37,8 @@ Once all the dependencies have been installed, configuring the bot is as simple 
 `BOT_USERNAME` : should be set to the bot username (must end in `bot`).
 
 `BOT_USERNAME` : should be set to the bot authentication token, as provided by the [`@BotFather`](http://telegram.me/BotFather) upon registration.
+
+For more details on how to create a new bot, please consult [https://core.telegram.org/bots#creating-a-new-bot](https://core.telegram.org/bots#creating-a-new-bot).
 
 
 ### Run Your Bot

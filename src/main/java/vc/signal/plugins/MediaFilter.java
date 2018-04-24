@@ -2,6 +2,7 @@ package vc.signal.plugins;
 
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.api.methods.groupadministration.KickChatMember;
+import org.telegram.telegrambots.api.methods.groupadministration.RestrictChatMember;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.api.objects.Message;
@@ -10,26 +11,29 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
 import vc.signal.CommunityBot;
 import vc.signal.config.ApplicationConfig;
 import vc.signal.services.ChatRepository;
+import vc.signal.services.UserRepository;
 import vc.signal.utils.BlockchainAddressMatcher;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static vc.signal.utils.I18n.t;
 
 /**
- * Plugin to filter blockchain addresses.
+ * Plugin to filter different types of media from a channel.
  */
 @Component
-public class BlockchainAddressFilter implements BotPlugin {
-
-  private static final String WHITELISTED_ADDRESSES_PROPERTY = "config.plugins.blockchainaddressfilter.whitelisted-addresses";
+public class MediaFilter implements BotPlugin {
 
   private CommunityBot bot;
   private ChatRepository chatRepository;
+  private UserRepository userRepository;
 
-  public BlockchainAddressFilter(CommunityBot bot, ChatRepository chatRepository) {
+  public MediaFilter(CommunityBot bot, ChatRepository chatRepository, UserRepository userRepository) {
     this.bot = bot;
     this.chatRepository = chatRepository;
+    this.userRepository = userRepository;
   }
 
   @Override
@@ -37,28 +41,24 @@ public class BlockchainAddressFilter implements BotPlugin {
     User fromUser = message.getFrom();
     String userId = String.valueOf(fromUser.getId());
     Long chatId = message.getChatId();
+    if (userRepository.isAdmin(String.valueOf(chatId), userId)) return;
 
-    String messageText = message.getText();
-    final List<String> whitelistedAddresses = getWhitelistedAddresses();
-    List<String> matchedAddresses = BlockchainAddressMatcher.match(messageText);
-    if (matchedAddresses.stream().anyMatch(addr -> !whitelistedAddresses.contains(addr))) {
+    boolean hasUrl = Optional.ofNullable(message.getEntities())
+        .orElse(Collections.emptyList())
+        .stream()
+        .anyMatch(messageEntity -> messageEntity.getType().equals("url"));
+    if (hasUrl) {
       int maxWarnings = chatRepository.getMaxWarnings(chatId);
       int userWarnings = chatRepository.warnUser(chatId, userId);
 
       bot.execute(new DeleteMessage(chatId, message.getMessageId()));
       bot.execute(new SendMessage(chatId,
-          t("%s <b>has been warned</b> (<code>%d/%d</code>)", fromUser.getUserName(), userWarnings, maxWarnings))
+          t("Links are not allowed in this channel. %s <b>has been warned</b> (<code>%d/%d</code>)", fromUser.getUserName(), userWarnings, maxWarnings))
           .enableHtml(true));
-
       if (userWarnings == maxWarnings) {
         bot.execute(new KickChatMember(chatId, fromUser.getId()).setUntilDate(-1));
-        // bot.execute(new RestrictChatMember(message.getChatId(), message.getFrom().getId()));
         chatRepository.removeUserWarnings(chatId, userId);
       }
     }
-  }
-
-  public List<String> getWhitelistedAddresses() {
-    return ApplicationConfig.INSTANCE.getPropertyAsList(WHITELISTED_ADDRESSES_PROPERTY);
   }
 }

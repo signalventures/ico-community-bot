@@ -41,6 +41,8 @@ public class CommunityBot extends TelegramLongPollingBot {
         // Ignore for now
       } else if (message.hasDocument()) {
         // Ignore for now
+      } else if (message.hasEntities()) {
+        // Ignore for now
       } else if (message.getLeftChatMember() != null) {
         // Ignore for now
       } else if (message.getNewChatMembers() != null && !message.getNewChatMembers().isEmpty()) {

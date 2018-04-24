@@ -20,6 +20,14 @@ public class BlockchainAddressMatcherTest {
   }
 
   @Test
+  public void testSingleEthereumAddressx() {
+    String s = "Please send all your ether to A2uiinAGcG5pUkAWl9ZxHsZRqfCjbBUna.";
+    List<String> matchedAddresses = BlockchainAddressMatcher.match(s);
+    assertEquals(matchedAddresses.size(), 1);
+    assertEquals(matchedAddresses.get(0), "A2uiinAGcG5pUkAWl9ZxHsZRqfCjbBUna");
+  }
+
+  @Test
   public void testSingleEthereumAddress() {
     String s = "Please send all your ether to 0xab5801a7d398351b8be11c439e05c5b3259aec9b.";
     List<String> matchedAddresses = BlockchainAddressMatcher.match(s);

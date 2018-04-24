@@ -15,10 +15,15 @@ public interface BotPlugin {
     onTextMessage(message);
   }
 
-  default void onTextMessage(Message message) throws TelegramApiException {}
+  default void onTextMessage(Message message) throws TelegramApiException {
+    if (message.getText().startsWith("/")) {
+      onCommand(message);
+    }
+  }
 
   default void onNewChatMembers(Message message, List<User> newChatMembers) throws TelegramApiException {}
 
   default void onCallbackQuery(Message message) {}
 
+  default void onCommand(Message message) throws TelegramApiException {};
 }

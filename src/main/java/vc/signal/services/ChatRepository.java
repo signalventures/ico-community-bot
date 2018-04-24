@@ -21,6 +21,10 @@ public class ChatRepository {
   private static final String CHAT_FLOOD_HASH = "chat:%s:flood";
   private static final String CHAT_SPAM_KEY = "cache:spam:%s:%s"; // cache:spam:chatId:userId
 
+  private static final String CHAT_NEW_MEMBERS_KEY = "cache:newmembers:%s";
+
+  private static final String CHAT_MUTE_KEY = "chat:%s:muted";
+
   @Autowired
   private JedisPool jedisPool;
 
@@ -98,6 +102,36 @@ public class ChatRepository {
       final String chatSpamKey = String.format(CHAT_SPAM_KEY, chatId, userId);
       final int expireTimeInSeconds = 5;
       jedis.setex(chatSpamKey, expireTimeInSeconds, String.valueOf(count));
+    }
+  }
+
+  /**
+   * Mutes the channel with the given <code>chatId</code>.
+   */
+  public void muteChat(Long chatId) {
+    try (Jedis jedis = jedisPool.getResource()) {
+      final String chatMuteKey = String.format(CHAT_MUTE_KEY, chatId);
+      jedis.set(chatMuteKey, Boolean.TRUE.toString());
+    }
+  }
+
+  /**
+   * Unmutes the channel with the given <code>chatId</code>.
+   */
+  public void unmuteChat(Long chatId) {
+    try (Jedis jedis = jedisPool.getResource()) {
+      final String chatMuteKey = String.format(CHAT_MUTE_KEY, chatId);
+      jedis.set(chatMuteKey, Boolean.FALSE.toString());
+    }
+  }
+
+  /**
+   * Determines if the channel with the given <code>chatId</code> is muted.
+   */
+  public boolean isChatMuted(Long chatId) {
+    try (Jedis jedis = jedisPool.getResource()) {
+      final String chatMuteKey = String.format(CHAT_MUTE_KEY, chatId);
+      return Boolean.valueOf(jedis.get(chatMuteKey));
     }
   }
 }

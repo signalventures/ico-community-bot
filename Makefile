@@ -46,4 +46,9 @@ git-pull:
 
 ## upgrade         : Stop all, git pull, and start all
 .PHONY : upgrade
-upgrade: down git-pull package up
+upgrade: down clean git-pull package up
+
+## clean           : Clean all images
+.PHONY : clean
+clean:
+	@docker-compose rm -f
